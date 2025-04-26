@@ -1,5 +1,3 @@
-# database.py
-
 import sqlite3
 
 # Create a connection to the database (creates messages.db if it doesn't exist)

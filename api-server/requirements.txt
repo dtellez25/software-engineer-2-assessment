@@ -1,3 +1,8 @@
+#Pip install the following packages
+# to create a simple API server using FastAPI and Pydantic
+# and to run the server using Uvicorn
+# The packages are:
+
 fastapi 
 uvicorn
 pydantic

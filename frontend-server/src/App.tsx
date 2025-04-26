@@ -1,42 +1,95 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
+// Define the message structure (id and message content)
+type Message = {
+  id: number;
+  message: string;
+}
+
 function App() {
-  const [messages, setMessages] = useState<string[]>(["test", "a", "b", "c"])
+  const [messages, setMessages] = useState<Message[]>([])
   const [message, setMessage] = useState<string>("")
   const [error, setError] = useState<boolean>(false)
 
-  // Welcome!
-  // Edit the below functions to make the application functional.
-  // Remember, updates to messages must be persisted across page refreshes.
-  // That means syncing the order of messages, new messages, etc. with
-  // the api server after every operation.
-  // Finally, you should not need to make any changes to the rendering/styling
-  // of the application.
-
+  // Fetch the initial message list from the api server
   useEffect(() => {
-    // Fetch the initial message list from the api server and set the messages state
-  })
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/messages')
+        const data = await response.json()
+        setMessages(data)
+      } catch (err) {
+        console.error('Error fetching messages:', err)
+        setError(true)
+      }
+    }
 
-  const submitMessage = () => {
-    // your code here
-    // validate the message, update the messages state and sync with api server
+    fetchMessages()
+  }, [])
+
+  // Submit a new message
+  const submitMessage = async () => {
+    if (message.trim() === "") {
+      setError(true)
+      return
+    }
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: message }),
+      })
+
+      if (response.ok) {
+        setError(false)
+        setMessage("") // Clear input
+        const updatedMessages = await (await fetch('http://127.0.0.1:8000/messages')).json()
+        setMessages(updatedMessages)
+      } else {
+        setError(true)
+      }
+    } catch (err) {
+      console.error('Error submitting message:', err)
+      setError(true)
+    }
   }
 
-  const deleteMessage = () => {
-    // your code here
-    // delete the message and sync with the api server
+  // Delete a message by id
+  const deleteMessage = async (id: number) => {
+    try {
+      await fetch(`http://127.0.0.1:8000/messages/${id}`, {
+        method: 'DELETE',
+      })
+      const updatedMessages = await (await fetch('http://127.0.0.1:8000/messages')).json()
+      setMessages(updatedMessages)
+    } catch (err) {
+      console.error('Error deleting message:', err)
+    }
   }
 
-  const moveMessageUp = () => {
-    // your code here
-    // move the message up by one and sync new message order with api server
+  // Move a message up in the list
+  const moveMessageUp = (id: number) => {
+    const idx = messages.findIndex(m => m.id === id)
+    if (idx > 0) {
+      const newMessages = [...messages]
+      ;[newMessages[idx], newMessages[idx - 1]] = [newMessages[idx - 1], newMessages[idx]]
+      setMessages(newMessages)
+    }
   }
 
-  const moveMessageDown = () => {
-    // your code here
-    // move the message down by one and sync new message order with api server
-  } 
+  // Move a message down in the list
+  const moveMessageDown = (id: number) => {
+    const idx = messages.findIndex(m => m.id === id)
+    if (idx < messages.length - 1) {
+      const newMessages = [...messages]
+      ;[newMessages[idx], newMessages[idx + 1]] = [newMessages[idx + 1], newMessages[idx]]
+      setMessages(newMessages)
+    }
+  }
 
   return (
     <div className="container">
@@ -44,15 +97,15 @@ function App() {
         <h3>Messages</h3>
         <ol>
           {messages.map(msg => (
-            <li className="message" key={msg}>
+            <li className="message" key={msg.id}>
               <div className="button-group">
-                <button onClick={deleteMessage}>❌</button>
+                <button onClick={() => deleteMessage(msg.id)}>❌</button>
                 <div className="button-column-group">
-                  <button onClick={moveMessageUp}>🔼</button>
-                  <button onClick={moveMessageDown}>🔽</button>
+                  <button onClick={() => moveMessageUp(msg.id)}>🔼</button>
+                  <button onClick={() => moveMessageDown(msg.id)}>🔽</button>
                 </div>
               </div>
-              {msg}
+              {msg.message}
             </li>
           ))}
         </ol>
@@ -62,7 +115,9 @@ function App() {
         <div className="input-group">
           <input value={message} onChange={(e) => setMessage(e.target.value)} />
           <button onClick={submitMessage}>submit</button>
-          <p style={{color: "hotPink", visibility: error? "visible": "hidden"}}>Message can not be empty</p>
+          <p style={{ color: "hotPink", visibility: error ? "visible" : "hidden" }}>
+            Message cannot be empty
+          </p>
         </div>
       </div>
     </div>

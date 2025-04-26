@@ -1,6 +1,9 @@
+from database import get_all_messages, create_message, update_message, delete_message
+
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List
+
 
 app = FastAPI()
 
@@ -13,36 +16,39 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Temporary in-memory storage
-messages = []
+from pydantic import BaseModel
+
+class MessageIn(BaseModel):
+    content: str
+
 
 # Endpoints
 
 # GET    127.0.0.1:8000/messages                // Return a list of all messages
 @app.get("/messages")
 def get_messages():
-    return messages
+    return get_all_messages()
 
 #POST   127.0.0.1:8000/messages                // Create a new message
 @app.post("/messages")
-def create_message(message: str):
-    messages.append({"id": len(messages) + 1, "message": message})
-    return {"status": "Message created"}
+def create_message_endpoint(message: MessageIn):
+    message_id = create_message(message.content)
+    return {"status": "Message created", "id": message_id}
 
 #PUT    127.0.0.1:8000/messages/:message_id    // Update an existing message
 @app.put("/messages/{message_id}")
-def update_message(message_id: int, new_message: str):
-    for m in messages:
-        if m["id"] == message_id:
-            m["message"] = new_message
-            return {"status": "Message updated"}
-    return {"error": "Message not found"}
+def update_message_endpoint(message_id: int, message: MessageIn):
+    rows_updated = update_message(message_id, message.content)
+    if rows_updated == 0:
+        return {"error": "Message not found"}
+    return {"status": "Message updated"}
 
 #DELETE 127.0.0.1:8000/messages/:message_id    // Delete an existing message
 @app.delete("/messages/{message_id}")
-def delete_message(message_id: int):
-    global messages
-    messages = [m for m in messages if m["id"] != message_id]
+def delete_message_endpoint(message_id: int):
+    rows_deleted = delete_message(message_id)
+    if rows_deleted == 0:
+        return {"error": "Message not found"}
     return {"status": "Message deleted"}
 
 

@@ -48,12 +48,13 @@ The frontend server render and styling is provided for you. You will need to han
 # Documentation Requirements
 1. Please comment your code.
 
+---
 
 # Running the Application
 
 To run the full application, you will need two servers running separately: the frontend server and the backend API server.
 
----
+
 
 ## How to run the frontend server
 
@@ -62,7 +63,7 @@ To run the full application, you will need two servers running separately: the f
 3. Run the command `npm start` to start the web server.
 4. Navigate to `localhost:3000` in your web browser. (Note: if you cannot see the webpage here, and you are running Windows, you need to add an entry to your hosts file to map 127.0.0.1 to localhost.)
 
----
+
 
 ## How to run the API server
 
@@ -73,7 +74,7 @@ To run the full application, you will need two servers running separately: the f
 5. Start the API server by running the command `python pythonWebserver.py`.
 6. Navigate to `127.0.0.1:8000/docs` in your web browser to view and test the API endpoints.
 
----
+
 
 ## Notes
 
@@ -83,5 +84,5 @@ To run the full application, you will need two servers running separately: the f
 - CORS is enabled to allow smooth communication between the frontend and backend.
 - The following instructions assume you are running the project inside the provided devcontainer (Linux environment). If you are using a different setup (e.g., Windows without WSL, local machine), some commands may need slight adjustments.
 
----
+
 

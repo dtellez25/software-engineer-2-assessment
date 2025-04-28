@@ -4,10 +4,12 @@ from database import get_all_messages, create_message, update_message, delete_me
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from pydantic import BaseModel
+
 
 app = FastAPI()
 
-# Set up CORS
+# Enable CORS to allow the frontend server to communicate with the backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allow all origins
@@ -16,14 +18,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from pydantic import BaseModel
-
+# Define the structure of incoming request bodies for creating/updating messages
 class MessageIn(BaseModel):
     content: str
 
 
 # Endpoints
-
 # GET    127.0.0.1:8000/messages                // Return a list of all messages
 @app.get("/messages")
 def get_messages():

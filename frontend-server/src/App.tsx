@@ -1,15 +1,20 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
-// Define the message structure (id and message content)
+// Define the message structure recieved from the backend (id and message content)
 type Message = {
   id: number;
   message: string;
 }
 
 function App() {
+  // State to store the list of messages
   const [messages, setMessages] = useState<Message[]>([])
+
+  // State to store the current input message
   const [message, setMessage] = useState<string>("")
+
+  // State to track if there's an error (e.g., submitting empty message)
   const [error, setError] = useState<boolean>(false)
 
   // Fetch the initial message list from the api server
